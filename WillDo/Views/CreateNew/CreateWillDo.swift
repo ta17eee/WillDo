@@ -232,14 +232,6 @@ struct SelectableWillDoView: View {
                 }
             }
             .contentShape(Rectangle())
-            .onTapGesture {
-                if isSelected {
-                    selectParent(nil)
-                }
-                else {
-                    selectParent(item.willDo)
-                }
-            }
 
             // 進捗バー（status に応じて）
             ProgressView(value: item.willDo.status.progress)
@@ -257,6 +249,14 @@ struct SelectableWillDoView: View {
         .padding(.vertical, 4)
         .background(isSelected ? Color.blue.opacity(0.1) : Color.clear)
         .cornerRadius(8)
+        .onTapGesture {
+            if isSelected {
+                selectParent(nil)
+            }
+            else {
+                selectParent(item.willDo)
+            }
+        }
     }
 
     private func formatted(date: Date) -> String {
@@ -276,39 +276,6 @@ struct SelectableWillDoView: View {
             return .green
         case .none:
             return .gray
-        }
-    }
-}
-
-struct WillDoFormView: View {
-    let parentWillDo: WillDo?
-    @Environment(\.presentationMode) var presentationMode
-    
-    var body: some View {
-        NavigationView {
-            VStack {
-                if let parent = parentWillDo {
-                    Text("親WillDo: \(parent.content)")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                        .padding()
-                } else {
-                    Text("新規WillDoを作成")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                        .padding()
-                }
-                Divider()
-                
-                // 中身は後で作成
-                
-                Spacer()
-            }
-            .navigationBarItems(
-                leading: Button("キャンセル") {
-                    presentationMode.wrappedValue.dismiss()
-                }
-            )
         }
     }
 }
