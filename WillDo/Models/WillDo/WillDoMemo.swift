@@ -6,8 +6,10 @@
 //
 import SwiftUI
 import Foundation
+import SwiftData
 
-struct Memo {
+@Model
+class Memo {
     var date: Date
     var content: String
 
