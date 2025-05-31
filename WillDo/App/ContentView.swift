@@ -16,11 +16,22 @@ struct ContentView: View {
     var body: some View {
         TabView(selection: $selectedTab) {
             WillDoListView()
-                .tag(0)
-            CalendarView()
-                .tag(1)
-            AnalyzeView()
-                .tag(2)
+               .tabItem {
+                   Label("WillDo", systemImage: "list.bullet")
+               }
+               .tag(0)
+
+           CalendarView()
+               .tabItem {
+                   Label("カレンダー", systemImage: "calendar")
+               }
+               .tag(1)
+
+           AnalyzeView()
+               .tabItem {
+                   Label("分析", systemImage: "chart.bar")
+               }
+               .tag(2)
         }
     }
 
