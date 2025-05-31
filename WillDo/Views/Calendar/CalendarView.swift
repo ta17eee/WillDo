@@ -79,6 +79,7 @@ struct CalendarView: View {
                             Image(systemName: "arrow.counterclockwise")
                         }
                     }
+                    .disabled(monthOffset == 0)
                 }
                 .font(.title3)
                 HStack(spacing: 8) {
