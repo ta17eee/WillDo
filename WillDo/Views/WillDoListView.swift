@@ -72,7 +72,7 @@ struct WillDoListView: View {
             }
         }
         .sheet(item: $selectedWillDo) { willDo in
-            WillDoFormView(parentWillDo: willDo.parent)
+            WillDoFormView(willDo: willDo)
         }
     }
     
