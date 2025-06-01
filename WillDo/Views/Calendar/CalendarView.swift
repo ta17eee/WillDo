@@ -246,12 +246,23 @@ struct CalendarView: View {
     
     func flattenWillDos(_ willDos: [WillDo]) -> [WillDo] {
         var result: [WillDo] = []
-        for willDo in willDos {
-            result.append(willDo)
-            result.append(contentsOf: flattenWillDos(willDo.childWillDos))
+        var seenIds: Set<String> = []
+
+        func helper(_ willDos: [WillDo]) {
+            for willDo in willDos {
+                if !seenIds.contains(willDo.id) {
+                    seenIds.insert(willDo.id)
+                    result.append(willDo)
+                    helper(willDo.childWillDos)
+                }
+            }
         }
+
+        helper(willDos)
         return result
     }
+
+
 
     
     private func willDosForDay(_ day: Int, monthOffset: Int) -> [String] {
