@@ -132,8 +132,6 @@ struct WillDoList: View {
 
         return result
     }
-
-    
 }
 
 extension WillDo {
@@ -170,3 +168,72 @@ extension WillDo {
         }
     }
 }
+
+struct FlatWillDoListView: View {
+    let willDos: [WillDo]
+    let onTap: (WillDo) -> Void
+    let selectedWillDo: WillDo?
+    let scrollToDate: String? // 追加。スクロールしたい日付の文字列を渡す
+
+    var body: some View {
+        ScrollViewReader { proxy in
+            List {
+                ForEach(groupedByDate.keys.sorted(), id: \.self) { dateString in
+                    
+                    // ✅ カスタム日付表示（スクロールターゲットにもなる）
+                    Text(dateString)
+                        .font(.headline)
+                        .padding(.vertical, 8)
+                        .listRowInsets(EdgeInsets()) // 余白をなくして見た目調整
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color(UIColor.systemGroupedBackground))
+                        .id(dateString + "_scrollTarget")
+                    
+                    // ✅ セクションヘッダーなしに変更
+                    Section {
+                        ForEach(groupedByDate[dateString] ?? []) { willDo in
+                            FlatWillDoRow(
+                                willDo: willDo,
+                                isSelected: selectedWillDo?.id == willDo.id
+                            ) {
+                                onTap(willDo)
+                            }
+                        }
+                    }
+                }
+            }
+            .onChange(of: scrollToDate) { newValue in
+                            guard let targetDate = newValue, !targetDate.isEmpty else { return }
+                            let targetID = targetDate + "_scrollTarget"
+                            withAnimation {
+                                proxy.scrollTo(targetID, anchor: .top)
+                            }
+                        }
+            .onAppear {
+                if let targetDate = scrollToDate {
+                    let targetID = targetDate + "_scrollTarget" // スクロール先は余白ID
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        withAnimation {
+                            proxy.scrollTo(targetID, anchor: .top)
+                        }
+                    }
+                }
+            }
+
+        }
+    }
+
+    private var groupedByDate: [String: [WillDo]] {
+        Dictionary(grouping: willDos) { willDo in
+            formattedDate(willDo.goalAt ?? Date.distantFuture)
+        }
+    }
+
+    private func formattedDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy年MM月dd日"
+        formatter.locale = Locale(identifier: "ja_JP")
+        return formatter.string(from: date)
+    }
+}
+

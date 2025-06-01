@@ -71,6 +71,7 @@ class WillDo {
                             content: "単語帳のページ1を覚える",
                             motivation: 70,
                             category: .work,
+                            goalAt: Calendar(identifier: .gregorian).date(byAdding: .day, value: 2, to: Date()),
                             status: .completed,
                             parentId: "1" // 適切にIDをセットしてください
                         ),
@@ -101,6 +102,7 @@ class WillDo {
                             content: "単語帳のページ1を覚える",
                             motivation: 70,
                             category: .work,
+                            goalAt: Calendar(identifier: .gregorian).date(byAdding: .day, value: 4, to: Date()),
                             status: .start,
                             parentId: "1" // 適切にIDをセットしてください
                         ),
