@@ -31,27 +31,27 @@ struct CalendarView: View {
                         WillDo(
                             content: "単語帳のページ1を覚える",
                             motivation: 70,
-                            category: "勉強",
+                            category: .work,
                             status: .start,
                             parentId: "1" // 適切にIDをセットしてください
                         ),
                         WillDo(
                             content: "単語帳のページ2を覚える",
                             motivation: 65,
-                            category: "勉強",
+                            category: .work,
                             status: .completed,
                             parentId: "1"
                         ),
                         WillDo(
                             content: "単語帳の復習をする",
                             motivation: 60,
-                            category: "勉強",
+                            category: .work,
                             status: .planned,
                             parentId: "1"
                         )
                     ],
                     motivation: 70,
-                    category: "勉強",
+                    category: .work,
                     status: .completed,
                     parentId: "1" // 適切にIDをセットしてください
                 ),
@@ -61,27 +61,27 @@ struct CalendarView: View {
                         WillDo(
                             content: "単語帳のページ1を覚える",
                             motivation: 70,
-                            category: "勉強",
+                            category: .work,
                             status: .start,
                             parentId: "1" // 適切にIDをセットしてください
                         ),
                         WillDo(
                             content: "単語帳のページ2を覚える",
                             motivation: 65,
-                            category: "勉強",
+                            category: .work,
                             status: .middle,
                             parentId: "1"
                         ),
                         WillDo(
                             content: "単語帳の復習をする",
                             motivation: 60,
-                            category: "勉強",
+                            category: .work,
                             status: .planned,
                             parentId: "1"
                         )
                     ],
                     motivation: 65,
-                    category: "勉強",
+                    category: .work,
                     status: .planned,
                     parentId: "1"
                 ),
@@ -91,33 +91,33 @@ struct CalendarView: View {
                         WillDo(
                             content: "単語帳のページ1を覚える",
                             motivation: 70,
-                            category: "勉強",
+                            category: .work,
                             status: .start,
                             parentId: "1" // 適切にIDをセットしてください
                         ),
                         WillDo(
                             content: "単語帳のページ2を覚える",
                             motivation: 65,
-                            category: "勉強",
+                            category: .work,
                             status: .completed,
                             parentId: "1"
                         ),
                         WillDo(
                             content: "単語帳の復習をする",
                             motivation: 60,
-                            category: "勉強",
+                            category: .work,
                             status: .planned,
                             parentId: "1"
                         )
                     ],
                     motivation: 60,
-                    category: "勉強",
+                    category: .work,
                     status: .planned,
                     parentId: "1"
                 )
             ],
             motivation: 80,
-            category: "勉強",
+            category: .work,
             goalAt: Calendar(identifier: .gregorian).date(byAdding: .month, value: 0, to: Date()),
             weight: .medium,
             priority: .high,
@@ -129,7 +129,7 @@ struct CalendarView: View {
         WillDo(
             content: "ランニングを週3回する",
             motivation: 60,
-            category: "健康",
+            category: .health,
             goalAt: Calendar(identifier: .gregorian).date(byAdding: .month, value: 0, to: Date()),
             weight: .low,
             priority: .medium,
@@ -138,7 +138,7 @@ struct CalendarView: View {
         WillDo(
             content: "アプリ開発のポートフォリオを完成させる",
             motivation: 95,
-            category: "自己成長",
+            category: .future,
             goalAt: Calendar(identifier: .gregorian).date(byAdding: .month, value: 0, to: Date())!,
             weight: .veryHigh,
             priority: .high,
@@ -150,7 +150,7 @@ struct CalendarView: View {
         WillDo(
             content: "読書感想文を書く",
             motivation: 40,
-            category: "学校",
+            category: .work,
             goalAt: Calendar(identifier: .gregorian).date(byAdding: .month, value: 0, to: Date()),
             weight: .high,
             priority: .low,
