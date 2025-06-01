@@ -13,9 +13,7 @@ struct WillDoListView: View {
     @Query private var willDos: [WillDo]
     @State private var expandedIds: Set<String> = []
     @State private var showSortPopup = false
-    @State private var sortSetting = SortSetting(option: .priority, order: .ascending)
-    
-    @State private var sortOption: SortOption = .createAt
+    @State private var sortSetting = SortSetting(option: .priority, order: .descending)
 
     let sampleWillDos: [WillDo] = [
         WillDo(
@@ -185,8 +183,8 @@ struct WillDoListView: View {
                 return isAscending ? (lhs.createAt < rhs.createAt) : (lhs.createAt > rhs.createAt)
 
             case .status:
-                let l = lhs.status.rawValue
-                let r = rhs.status.rawValue
+                let l = lhs.status.progress
+                let r = rhs.status.progress
                 return isAscending ? (l < r) : (l > r)
             }
         }
@@ -200,9 +198,6 @@ struct WillDoListView: View {
 
         return result
     }
-
-
-
 }
 
 struct FlattenedWillDo: Identifiable {
@@ -251,6 +246,17 @@ struct OneWillDoView: View {
                     .padding(.leading, 4)
 
                 Spacer()
+
+                // 🔽 展開マーク（子要素がいるときのみ）
+                if !item.willDo.childWillDos.isEmpty {
+                    Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
+                        .foregroundColor(.gray)
+                        .padding(.trailing, 8)
+                } else {
+                    Image(systemName: "chevron.right")
+                        .opacity(0)
+                }
+
             }
             .contentShape(Rectangle())
             .onTapGesture {
