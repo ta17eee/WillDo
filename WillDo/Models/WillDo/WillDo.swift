@@ -17,7 +17,7 @@ class WillDo {
     var content: String
     var childWillDos: [WillDo]
     var motivation: Int
-    var category: String
+    var category: Category
     var goalAt: Date?
     var weight: Weight?
     var priority: Priority?
@@ -34,7 +34,7 @@ class WillDo {
         content: String,
         childWillDos: [WillDo] = [],
         motivation: Int,
-        category: String,
+        category: Category,
         goalAt: Date? = nil,
         weight: Weight? = nil,
         priority: Priority? = nil,
@@ -70,28 +70,28 @@ class WillDo {
                         WillDo(
                             content: "単語帳のページ1を覚える",
                             motivation: 70,
-                            category: "勉強",
-                            status: .start,
+                            category: .work,
+                            status: .completed,
                             parentId: "1" // 適切にIDをセットしてください
                         ),
                         WillDo(
                             content: "単語帳のページ2を覚える",
                             motivation: 65,
-                            category: "勉強",
+                            category: .work,
                             status: .completed,
                             parentId: "1"
                         ),
                         WillDo(
                             content: "単語帳の復習をする",
                             motivation: 60,
-                            category: "勉強",
-                            status: .planned,
+                            category: .work,
+                            status: .completed,
                             parentId: "1"
                         )
                     ],
                     motivation: 70,
-                    category: "勉強",
-                    status: .completed,
+                    category: .work,
+                    status: .start,
                     parentId: "1" // 適切にIDをセットしてください
                 ),
                 WillDo(
@@ -100,27 +100,27 @@ class WillDo {
                         WillDo(
                             content: "単語帳のページ1を覚える",
                             motivation: 70,
-                            category: "勉強",
+                            category: .work,
                             status: .start,
                             parentId: "1" // 適切にIDをセットしてください
                         ),
                         WillDo(
                             content: "単語帳のページ2を覚える",
                             motivation: 65,
-                            category: "勉強",
+                            category: .work,
                             status: .middle,
                             parentId: "1"
                         ),
                         WillDo(
                             content: "単語帳の復習をする",
                             motivation: 60,
-                            category: "勉強",
+                            category: .work,
                             status: .planned,
                             parentId: "1"
                         )
                     ],
                     motivation: 65,
-                    category: "勉強",
+                    category: .work,
                     status: .planned,
                     parentId: "1"
                 ),
@@ -130,33 +130,33 @@ class WillDo {
                         WillDo(
                             content: "単語帳のページ1を覚える",
                             motivation: 70,
-                            category: "勉強",
+                            category: .work,
                             status: .start,
                             parentId: "1" // 適切にIDをセットしてください
                         ),
                         WillDo(
                             content: "単語帳のページ2を覚える",
                             motivation: 65,
-                            category: "勉強",
+                            category: .work,
                             status: .completed,
                             parentId: "1"
                         ),
                         WillDo(
                             content: "単語帳の復習をする",
                             motivation: 60,
-                            category: "勉強",
+                            category: .work,
                             status: .planned,
                             parentId: "1"
                         )
                     ],
                     motivation: 60,
-                    category: "勉強",
+                    category: .work,
                     status: .planned,
                     parentId: "1"
                 )
             ],
             motivation: 80,
-            category: "勉強",
+            category: .work,
             goalAt: Calendar.current.date(byAdding: .month, value: 1, to: Date()),
             weight: .medium,
             priority: .high,
@@ -168,7 +168,7 @@ class WillDo {
         WillDo(
             content: "ランニングを週3回する",
             motivation: 60,
-            category: "健康",
+            category: .health,
             weight: .low,
             priority: .medium,
             status: .planned
@@ -176,7 +176,7 @@ class WillDo {
         WillDo(
             content: "アプリ開発のポートフォリオを完成させる",
             motivation: 95,
-            category: "自己成長",
+            category: .future,
             goalAt: Calendar.current.date(byAdding: .month, value: 2, to: Date())!,
             weight: .veryHigh,
             priority: .high,
@@ -188,10 +188,10 @@ class WillDo {
         WillDo(
             content: "読書感想文を書く",
             motivation: 40,
-            category: "学校",
+            category: .work,
             weight: .high,
             priority: .low,
-            status: .almostDone,
+            status: .completed,
             impression: "読み切ったけどまとめるのが大変だった"
         )
     ]

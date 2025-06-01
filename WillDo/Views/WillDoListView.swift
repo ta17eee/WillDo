@@ -13,10 +13,15 @@ struct WillDoListView: View {
     @Query private var willDos: [WillDo]
     @State private var showSortPopup = false
     @State private var sortSetting = SortSetting(option: .priority, order: .descending)
+    @State private var filterSetting: FilterSetting = .init(
+        hideCompleted: true,
+        selectedCategories: Category.allCases
+    )
 
     var body: some View {
         ZStack {
             VStack {
+                
                 HStack {
                     // ソート対象 Picker（セグメント形式）
                     Picker("並び替え", selection: $sortSetting.option) {
@@ -40,7 +45,29 @@ struct WillDoListView: View {
                     }
                     .padding(.trailing)
                 }
-                WillDoList(sortSetting: sortSetting, onTap: dummy)
+                
+                
+                CategoryFilterTiles(selectedCategories: $filterSetting.selectedCategories)
+                
+                HStack(spacing: 8) {
+                    Spacer()
+                    Text("完了済みWill Doを隠す")
+                        .font(.subheadline)
+
+                    Button(action: {
+                        // トグル処理
+                        filterSetting.hideCompleted = filterSetting.hideCompleted ? false : true
+                    }) {
+                        Image(systemName: filterSetting.hideCompleted ? "eye.slash" : "eye")
+                            .imageScale(.large)
+                            .padding(6)
+                            .background(Color(.systemGray5))
+                            .clipShape(Circle())
+                    }
+                    .padding(.trailing)
+                }
+                
+                WillDoList(sortSetting: sortSetting, filterSetting: filterSetting, onTap: dummy)
             }
         }
     }
@@ -97,4 +124,90 @@ struct SortSetting: Identifiable, Equatable {
     var order: SortOrder
 
     var id: String { "\(option.rawValue)-\(order.rawValue)" }
+}
+
+struct FilterSetting {
+    var hideCompleted: Bool = false
+    var selectedCategories: [Category] = Category.allCases
+}
+
+struct CategoryFilterTiles: View {
+    @Binding var selectedCategories: [Category]
+    
+    // タイルの幅を適宜調整してください
+    let tileWidth: CGFloat = 100
+    let tileHeight: CGFloat = 35
+    
+    var body: some View {
+        // タイルをグリッド状に並べたいならLazyVGridなどにするのもアリ
+        // ここでは横並びでスクロール
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 12) {
+                Button(action: {
+                    toggleAll()
+                }) {
+                    HStack(spacing: 6) {
+                        Image(systemName: isAllSelected ? "checkmark.circle.fill" : "circle")
+                            .foregroundColor(isAllSelected ? .white : .gray)
+                        Text("全て表示")
+                            .font(.system(size: 14))
+                            .foregroundColor(isAllSelected ? .white : .gray)
+                    }
+                    .frame(width: tileWidth, height: tileHeight)
+                    .background(isAllSelected ? Color.blue : Color.gray.opacity(0.2))
+                    .cornerRadius(8)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(isAllSelected ? Color.blue : Color.gray.opacity(0.5), lineWidth: 1)
+                    )
+                }
+                .buttonStyle(PlainButtonStyle())
+                ForEach(Category.allCases) { category in
+                    Button(action: {
+                        toggleCategory(category)
+                    }) {
+                        HStack(spacing: 6) {
+                            Image(systemName: category.iconName)
+                                .foregroundColor(selectedCategories.contains(category) ? .white : .gray)
+                            Text(category.displayName)
+                                .font(.system(size: 14))
+                                .foregroundColor(selectedCategories.contains(category) ? .white : .gray)
+                        }
+                        .frame(width: tileWidth, height: tileHeight)
+                        .background(selectedCategories.contains(category) ? Color.blue : Color.gray.opacity(0.2))
+                        .cornerRadius(8)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(selectedCategories.contains(category) ? Color.blue : Color.gray.opacity(0.5), lineWidth: 1)
+                        )
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                }
+            }
+            .padding(.horizontal)
+        }
+    }
+    
+    // 全選択中かどうか
+    private var isAllSelected: Bool {
+        Set(selectedCategories) == Set(Category.allCases)
+    }
+    
+    private func toggleAll() {
+        if isAllSelected {
+            // 全解除
+            selectedCategories = []
+        } else {
+            // 全選択
+            selectedCategories = Category.allCases
+        }
+    }
+    
+    private func toggleCategory(_ category: Category) {
+        if selectedCategories.contains(category) {
+            selectedCategories.removeAll { $0 == category }
+        } else {
+            selectedCategories.append(category)
+        }
+    }
 }

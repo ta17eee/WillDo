@@ -169,7 +169,7 @@ struct WillDoFormView: View {
         let newWillDo = WillDo(
             content: content,
             motivation: Int(motivation),
-            category: category,
+            category: Category(rawValue: category) ?? .work,
             goalAt: goalAt,
             weight: selectedWeight,
             priority: selectedPriority,
