@@ -46,11 +46,34 @@ struct WillDoListView: View {
                     ],
                     motivation: 70,
                     category: "勉強",
-                    status: .planned,
+                    status: .completed,
                     parentId: "1" // 適切にIDをセットしてください
                 ),
                 WillDo(
                     content: "単語帳のページ2を覚える",
+                    childWillDos: [
+                        WillDo(
+                            content: "単語帳のページ1を覚える",
+                            motivation: 70,
+                            category: "勉強",
+                            status: .start,
+                            parentId: "1" // 適切にIDをセットしてください
+                        ),
+                        WillDo(
+                            content: "単語帳のページ2を覚える",
+                            motivation: 65,
+                            category: "勉強",
+                            status: .middle,
+                            parentId: "1"
+                        ),
+                        WillDo(
+                            content: "単語帳の復習をする",
+                            motivation: 60,
+                            category: "勉強",
+                            status: .planned,
+                            parentId: "1"
+                        )
+                    ],
                     motivation: 65,
                     category: "勉強",
                     status: .planned,
@@ -58,6 +81,29 @@ struct WillDoListView: View {
                 ),
                 WillDo(
                     content: "単語帳の復習をする",
+                    childWillDos: [
+                        WillDo(
+                            content: "単語帳のページ1を覚える",
+                            motivation: 70,
+                            category: "勉強",
+                            status: .start,
+                            parentId: "1" // 適切にIDをセットしてください
+                        ),
+                        WillDo(
+                            content: "単語帳のページ2を覚える",
+                            motivation: 65,
+                            category: "勉強",
+                            status: .completed,
+                            parentId: "1"
+                        ),
+                        WillDo(
+                            content: "単語帳の復習をする",
+                            motivation: 60,
+                            category: "勉強",
+                            status: .planned,
+                            parentId: "1"
+                        )
+                    ],
                     motivation: 60,
                     category: "勉強",
                     status: .planned,
@@ -142,12 +188,37 @@ struct WillDoListView: View {
                             isExpanded: expandedIds.contains(item.willDo.id),
                             toggleExpansion: toggleExpansion
                         )
+                        .listRowBackground(
+                            HStack(spacing: 0) {
+                                // 左側 白の領域
+                                Color.white
+                                    .frame(width: CGFloat(item.level) * 20)
+
+                                // 右側は階層色
+                                backgroundColor(for: item.level)
+                            }
+                        )
                     }
                 }
-                
+                .scrollContentBackground(.hidden)
+                .background(Color(.systemGray6))
             }
         }
     }
+    
+    func backgroundColor(for level: Int) -> Color {
+        let colors: [Color] = [
+            Color(red: 1.0, green: 1.0, blue: 1.0), // white
+            Color(red: 0.90, green: 0.93, blue: 1.0), // very light blue
+            Color(red: 0.92, green: 0.97, blue: 0.95), // mint
+            Color(red: 1.0, green: 0.98, blue: 0.92), // pastel yellow
+            Color(red: 1.0, green: 0.95, blue: 0.95), // pink
+            Color(red: 0.96, green: 0.92, blue: 1.0)  // lavender
+        ]
+        return colors[min(level, colors.count - 1)]
+    }
+
+
     
     func toggleExpansion(id: String) {
             if expandedIds.contains(id) {
@@ -211,7 +282,6 @@ struct OneWillDoView: View {
     let item: FlattenedWillDo
     let isExpanded: Bool
     let toggleExpansion: (String) -> Void
-    
 
     var body: some View {
         let minSize: CGFloat = 10   // veryLow のとき
@@ -220,34 +290,28 @@ struct OneWillDoView: View {
         let weightValue = CGFloat(item.willDo.weight?.rawValue ?? 1)
         let scale = (weightValue - 1) / 4 // → 0〜1 の範囲に変換
         let size = minSize + (maxSize - minSize) * scale
+        
         VStack(alignment: .leading, spacing: 4) {
             HStack {
                 Spacer()
                     .frame(width: CGFloat(item.level) * 20)
 
-                // 展開アイコン or プレースホルダー
                 Image(systemName: "dumbbell.fill")
                     .resizable()
                     .scaledToFit()
-                    .frame(
-                        width: size,
-                        height: size
-                    ) // 表示サイズ（大きさ）
-                    .frame(width: 25, alignment: .center) // 固定領域
+                    .frame(width: size, height: size)
+                    .frame(width: 25)
 
-                // 優先度による色付きアイコン
                 Circle()
                     .fill(colorForPriority(item.willDo.priority))
                     .frame(width: 10, height: 10)
 
-                // コンテンツ
                 Text(item.willDo.content)
                     .font(.body)
                     .padding(.leading, 4)
 
                 Spacer()
 
-                // 🔽 展開マーク（子要素がいるときのみ）
                 if !item.willDo.childWillDos.isEmpty {
                     Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
                         .foregroundColor(.gray)
@@ -256,19 +320,16 @@ struct OneWillDoView: View {
                     Image(systemName: "chevron.right")
                         .opacity(0)
                 }
-
             }
             .contentShape(Rectangle())
             .onTapGesture {
                 toggleExpansion(item.willDo.id)
             }
 
-            // 進捗バー（status に応じて）
-            ProgressView(value: item.willDo.status.progress)
-                .accentColor(item.willDo.status.color)
+            ProgressView(value: item.willDo.totalProgress)
+                .accentColor(item.willDo.effectiveStatusColor)
                 .padding(.leading, CGFloat(item.level) * 20 + 32)
 
-            // 目標日がある場合に表示
             if let goalDate = item.willDo.goalAt {
                 Text("目標: \(formatted(date: goalDate))")
                     .font(.caption)
@@ -278,7 +339,7 @@ struct OneWillDoView: View {
         }
         .padding(.vertical, 4)
     }
-
+    
     private func formatted(date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateStyle = .short
@@ -298,6 +359,20 @@ struct OneWillDoView: View {
             return .gray
         }
     }
+    
+    private func colorForProgress(_ progress: Double) -> Color {
+        switch progress {
+        case 0..<0.3:
+            return .red
+        case 0.3..<0.7:
+            return .orange
+        case 0.7...1.0:
+            return .green
+        default:
+            return .gray
+        }
+    }
+
 }
 
 enum SortOption: String, CaseIterable, Identifiable {
@@ -342,3 +417,27 @@ struct SortSetting: Identifiable, Equatable {
 }
 
 
+extension WillDo {
+    var totalProgress: Double {
+        if childWillDos.isEmpty {
+            return status.progress
+        } else {
+            let progresses = childWillDos.map { $0.totalProgress }
+            return progresses.reduce(0, +) / Double(progresses.count)
+        }
+    }
+
+    var effectiveStatusColor: Color {
+        if childWillDos.isEmpty {
+            return status.color
+        } else {
+            let average = totalProgress
+            switch average {
+            case 0..<0.3: return .red
+            case 0.3..<0.7: return .orange
+            case 0.7...1.0: return .green
+            default: return .gray
+            }
+        }
+    }
+}
