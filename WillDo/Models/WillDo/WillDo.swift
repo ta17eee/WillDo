@@ -60,5 +60,5 @@ class WillDo {
         self.impression = impression
         self.parent = parent
     }
-    
+
 }

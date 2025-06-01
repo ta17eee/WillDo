@@ -137,3 +137,90 @@ struct SelectableWillDo: View {
         }
     }
 }
+
+
+struct FlatWillDoRow: View {
+    let willDo: WillDo
+    let isSelected: Bool
+    let onTap: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                if isSelected {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundColor(.green)
+                        .frame(width: 25)
+                } else {
+                    Image(systemName: "dumbbell.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: iconSize, height: iconSize)
+                        .frame(width: 25)
+                }
+
+                Circle()
+                    .fill(colorForPriority(willDo.priority))
+                    .frame(width: 10, height: 10)
+
+                Text(willDo.content)
+                    .font(.body)
+
+                Spacer()
+            }
+            .contentShape(Rectangle())
+            .onTapGesture {
+                onTap()
+            }
+
+            ProgressView(value: willDo.totalProgress)
+                .accentColor(willDo.effectiveStatusColor)
+
+            HStack(spacing: 4) {
+                Image(systemName: willDo.category.iconName)
+                Text(willDo.category.displayName)
+            }
+            .font(.caption)
+            .foregroundColor(.gray)
+
+            if let goalDate = willDo.goalAt {
+                Text("目標: \(formatted(date: goalDate))")
+                    .font(.caption)
+                    .foregroundColor(.gray)
+            }
+        }
+        .padding(.vertical, 6)
+        .overlay(
+            RoundedRectangle(cornerRadius: 4)
+                .stroke(Color.green, lineWidth: isSelected ? 2 : 0)
+        )
+    }
+
+    private var iconSize: CGFloat {
+        let minSize: CGFloat = 10
+        let maxSize: CGFloat = 25
+        let weightValue = CGFloat(willDo.weight?.rawValue ?? 1)
+        let scale = (weightValue - 1) / 4
+        return minSize + (maxSize - minSize) * scale
+    }
+
+    private func formatted(date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .short
+        formatter.locale = Locale(identifier: "ja_JP")
+        return formatter.string(from: date)
+    }
+
+    private func colorForPriority(_ priority: Priority?) -> Color {
+        switch priority {
+        case .high:
+            return .red
+        case .medium:
+            return .orange
+        case .low:
+            return .green
+        default:
+            return .gray
+        }
+    }
+}
