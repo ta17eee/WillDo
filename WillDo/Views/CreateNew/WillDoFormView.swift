@@ -13,7 +13,23 @@ struct WillDoFormView: View {
     @State private var selectedWeight: Weight? = nil
     @State private var selectedPriority: Priority? = nil
     @State private var memoText: String = ""
-    @State private var motivation: Double = 50
+    @State private var motivation: Int = 50
+    
+    init(parentWillDo: WillDo?) {
+        self.parentWillDo = parentWillDo
+    }
+    
+    init(willDo: WillDo) {
+        self.content = willDo.content
+        self.category = willDo.category
+        self.goalAt = willDo.goalAt
+        self.hasGoal = willDo.goalAt != nil
+        self.selectedWeight = willDo.weight
+        self.selectedPriority = willDo.priority
+        self.memoText = ""
+        self.motivation = willDo.motivation
+        self.parentWillDo = willDo.parent
+    }
     
     var body: some View {
         NavigationView {
@@ -86,10 +102,10 @@ struct WillDoFormView: View {
                         
                         // モチベーション
                         HStack {
-                            Text("モチベーション：\(Int(motivation))")
+                            Text("モチベーション：\(motivation)")
                                 .font(.headline)
-                                .frame(width: 160, alignment: .leading)
-                            Slider(value: $motivation, in: 0...100, step: 1)
+                                .frame(width: 172, alignment: .leading)
+                            Slider(value: $motivation, in: 0...100)
                                 .accentColor(.blue)
                         }
                         
@@ -174,7 +190,7 @@ struct WillDoFormView: View {
         // WillDoインスタンスを作成
         let newWillDo = WillDo(
             content: content,
-            motivation: Int(motivation),
+            motivation: motivation,
             category: category,
             goalAt: goalAt,
             weight: selectedWeight,
