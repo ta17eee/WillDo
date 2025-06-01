@@ -30,7 +30,7 @@ struct CalendarView: View {
     var willDosInCurrentMonth: [WillDo] {
         let targetMonth = Int(getTargetMonth()) ?? 0
         let targetYear = Int(getTargetYear()) ?? 0
-        return flattenWillDos(sampleWillDos)
+        return flattenWillDos(willDos)
             .filter {
                 guard let goalAt = $0.goalAt else { return false }
                 let components = Calendar(identifier: .gregorian).dateComponents([.year, .month], from: goalAt)
@@ -246,12 +246,23 @@ struct CalendarView: View {
     
     func flattenWillDos(_ willDos: [WillDo]) -> [WillDo] {
         var result: [WillDo] = []
-        for willDo in willDos {
-            result.append(willDo)
-            result.append(contentsOf: flattenWillDos(willDo.childWillDos))
+        var seenIds: Set<String> = []
+
+        func helper(_ willDos: [WillDo]) {
+            for willDo in willDos {
+                if !seenIds.contains(willDo.id) {
+                    seenIds.insert(willDo.id)
+                    result.append(willDo)
+                    helper(willDo.childWillDos)
+                }
+            }
         }
+
+        helper(willDos)
         return result
     }
+
+
 
     
     private func willDosForDay(_ day: Int, monthOffset: Int) -> [String] {
@@ -277,7 +288,7 @@ struct CalendarView: View {
         }
 
         // 🔽 ここで全階層を展開
-        let allWillDos = flattenWillDos(sampleWillDos)
+        let allWillDos = flattenWillDos(willDos)
 
         let willDosForDay = allWillDos.filter {
             guard let goalAt = $0.goalAt else { return false }
