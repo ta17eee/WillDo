@@ -1,12 +1,13 @@
 import SwiftUI
+import SwiftData
 
 struct WillDoFormView: View {
     let parentWillDo: WillDo?
     @Environment(\.presentationMode) var presentationMode
-    
+    @Environment(\.modelContext) private var modelContext: ModelContext
     // フォームの状態管理
     @State private var content: String = ""
-    @State private var category: String = ""
+    @State private var category: Category = .work
     @State private var goalAt: Date? = nil
     @State private var hasGoal: Bool = false
     @State private var selectedWeight: Weight? = nil
@@ -39,11 +40,16 @@ struct WillDoFormView: View {
                         }
                         
                         // カテゴリー
-                        VStack(alignment: .leading, spacing: 8) {
+                        HStack {
                             Text("カテゴリー")
                                 .font(.headline)
-                            TextField("例: 勉強、健康、趣味", text: $category)
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                            Spacer()
+                            Picker("", selection: $category) {
+                                ForEach(Category.allCases, id: \.self) { category in
+                                    Text(category.displayName).tag(category as Category)
+                                }
+                            }
+                            .pickerStyle(MenuPickerStyle())
                         }
                         
                         // 目標時間
@@ -169,11 +175,11 @@ struct WillDoFormView: View {
         let newWillDo = WillDo(
             content: content,
             motivation: Int(motivation),
-            category: Category(rawValue: category) ?? .work,
+            category: category,
             goalAt: goalAt,
             weight: selectedWeight,
             priority: selectedPriority,
-            parentId: parentWillDo?.id
+            parent: parentWillDo
         )
         
         // メモがある場合は追加
@@ -183,20 +189,23 @@ struct WillDoFormView: View {
         }
         
         // TODO: ここでデータ保存処理を実装（今はテストが書いてある）
-        print("作成されたWillDo: \(newWillDo.content)")
-        print("カテゴリー: \(newWillDo.category)")
-        print("モチベーション: \(newWillDo.motivation)")
-        if let goal = newWillDo.goalAt {
-            print("目標時間: \(goal)")
-        }
-        if let weight = newWillDo.weight {
-            print("重要度: \(weight.label)")
-        }
-        if let priority = newWillDo.priority {
-            print("優先度: \(priority.label)")
-        }
-        if !newWillDo.memoList.isEmpty {
-            print("メモ: \(newWillDo.memoList.first?.content ?? "")")
+        if newWillDo.parent == nil {
+            modelContext.insert(newWillDo)
+            do {
+                try modelContext.save()
+            } catch {
+                return
+            }
+        } else {
+            parentWillDo!.childWillDos.append(newWillDo)
+            modelContext.insert(parentWillDo!)
+            do {
+                try modelContext.save()
+            }
+            catch {
+                return
+            }
+
         }
         
         // フォームを閉じる
