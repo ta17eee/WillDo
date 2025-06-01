@@ -6,8 +6,10 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct WillDoList: View {
+    @Query var WillDos: [WillDo]
     @State var expandedIds: Set<String> = []
     var sortSetting: SortSetting = .init(option: .priority, order: .descending)
     var filterSetting: FilterSetting = .init()
@@ -17,7 +19,7 @@ struct WillDoList: View {
     var body: some View {
         VStack {
             List {
-                ForEach(flattened(WillDo.sampleWillDos.filter { $0.parentId == nil }, sortSetting: sortSetting, filterSetting: filterSetting)) { item in
+                ForEach(flattened(WillDos.filter { $0.parent == nil }, sortSetting: sortSetting, filterSetting: filterSetting)) { item in
                     SelectableWillDo(
                         item: item,
                         isExpanded: expandedIds.contains(item.willDo.id),

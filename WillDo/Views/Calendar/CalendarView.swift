@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import SwiftData
 
 struct CalendarView: View {
     private enum ActiveSheet: Identifiable {
@@ -17,149 +18,10 @@ struct CalendarView: View {
         }
     }
     
+    @Query var willDos: [WillDo]
     @State var monthOffset: Int = 0
     @State private var activeSheet: ActiveSheet?
     private let week: [String] = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"]
-    
-    let sampleWillDos: [WillDo] = [
-        WillDo(
-            content: "英単語を毎日10個覚える",
-            childWillDos: [
-                WillDo(
-                    content: "単語帳のページ1を覚える",
-                    childWillDos: [
-                        WillDo(
-                            content: "単語帳のページ1を覚える",
-                            motivation: 70,
-                            category: .work,
-                            goalAt: Calendar(identifier: .gregorian).date(byAdding: .day, value: 2, to: Date()),
-                            status: .start,
-                            parentId: "1" // 適切にIDをセットしてください
-                        ),
-                        WillDo(
-                            content: "単語帳のページ2を覚える",
-                            motivation: 65,
-                            category: .work,
-                            status: .completed,
-                            parentId: "1"
-                        ),
-                        WillDo(
-                            content: "単語帳の復習をする",
-                            motivation: 60,
-                            category: .work,
-                            status: .planned,
-                            parentId: "1"
-                        )
-                    ],
-                    motivation: 70,
-                    category: .work,
-                    status: .completed,
-                    parentId: "1" // 適切にIDをセットしてください
-                ),
-                WillDo(
-                    content: "単語帳のページ2を覚える",
-                    childWillDos: [
-                        WillDo(
-                            content: "単語帳のページ1を覚える",
-                            motivation: 70,
-                            category: .work,
-                            goalAt: Calendar(identifier: .gregorian).date(byAdding: .day, value: 2, to: Date()),
-                            status: .start,
-                            parentId: "1" // 適切にIDをセットしてください
-                        ),
-                        WillDo(
-                            content: "単語帳のページ2を覚える",
-                            motivation: 65,
-                            category: .work,
-                            status: .middle,
-                            parentId: "1"
-                        ),
-                        WillDo(
-                            content: "単語帳の復習をする",
-                            motivation: 60,
-                            category: .work,
-                            status: .planned,
-                            parentId: "1"
-                        )
-                    ],
-                    motivation: 65,
-                    category: .work,
-                    status: .planned,
-                    parentId: "1"
-                ),
-                WillDo(
-                    content: "単語帳の復習をする",
-                    childWillDos: [
-                        WillDo(
-                            content: "単語帳のページ1を覚える",
-                            motivation: 70,
-                            category: .work,
-                            status: .start,
-                            parentId: "1" // 適切にIDをセットしてください
-                        ),
-                        WillDo(
-                            content: "単語帳のページ2を覚える",
-                            motivation: 65,
-                            category: .work,
-                            status: .completed,
-                            parentId: "1"
-                        ),
-                        WillDo(
-                            content: "単語帳の復習をする",
-                            motivation: 60,
-                            category: .work,
-                            status: .planned,
-                            parentId: "1"
-                        )
-                    ],
-                    motivation: 60,
-                    category: .work,
-                    status: .planned,
-                    parentId: "1"
-                )
-            ],
-            motivation: 80,
-            category: .work,
-            goalAt: Calendar(identifier: .gregorian).date(byAdding: .month, value: 0, to: Date()),
-            weight: .medium,
-            priority: .high,
-            status: .start,
-            memoList: [
-                Memo(date: Date(), content: "DUO 3.0 で始めた")
-            ]
-        ),
-        WillDo(
-            content: "ランニングを週3回する",
-            motivation: 60,
-            category: .health,
-            goalAt: Calendar(identifier: .gregorian).date(byAdding: .month, value: 0, to: Date()),
-            weight: .low,
-            priority: .medium,
-            status: .planned
-        ),
-        WillDo(
-            content: "アプリ開発のポートフォリオを完成させる",
-            motivation: 95,
-            category: .future,
-            goalAt: Calendar(identifier: .gregorian).date(byAdding: .month, value: 0, to: Date())!,
-            weight: .veryHigh,
-            priority: .high,
-            status: .middle,
-            memoList: [
-                Memo(date: Date(), content: "画面設計完了。次はFirestore連携")
-            ]
-        ),
-        WillDo(
-            content: "読書感想文を書く",
-            motivation: 40,
-            category: .work,
-            goalAt: Calendar(identifier: .gregorian).date(byAdding: .month, value: 0, to: Date()),
-            weight: .high,
-            priority: .low,
-            status: .almostDone,
-            impression: "読み切ったけどまとめるのが大変だった"
-        )
-    ]
     
     @State private var willDoHeight: CGFloat = 300
     @State private var lastDragValue: CGFloat = 0
@@ -168,7 +30,6 @@ struct CalendarView: View {
     var willDosInCurrentMonth: [WillDo] {
         let targetMonth = Int(getTargetMonth()) ?? 0
         let targetYear = Int(getTargetYear()) ?? 0
-
         return flattenWillDos(sampleWillDos)
             .filter {
                 guard let goalAt = $0.goalAt else { return false }
