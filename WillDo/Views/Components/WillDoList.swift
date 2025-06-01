@@ -10,13 +10,14 @@ import SwiftUI
 struct WillDoList: View {
     @State var expandedIds: Set<String> = []
     var sortSetting: SortSetting = .init(option: .priority, order: .descending)
+    var filterSetting: FilterSetting = .init()
     var selectedParent: WillDo?
     let onTap: (WillDo) -> Void
     
     var body: some View {
         VStack {
             List {
-                ForEach(flattened(WillDo.sampleWillDos.filter { $0.parentId == nil }, sortSetting: sortSetting)) { item in
+                ForEach(flattened(WillDo.sampleWillDos.filter { $0.parentId == nil }, sortSetting: sortSetting, filterSetting: filterSetting)) { item in
                     SelectableWillDo(
                         item: item,
                         isExpanded: expandedIds.contains(item.willDo.id),
@@ -61,16 +62,39 @@ struct WillDoList: View {
         }
     }
 
-    func flattened(_ willDos: [WillDo], level: Int = 0, sortSetting: SortSetting) -> [FlattenedWillDo] {
-        var result: [FlattenedWillDo] = []
+    func flattened(
+        _ willDos: [WillDo],
+        level: Int = 0,
+        sortSetting: SortSetting,
+        filterSetting: FilterSetting
+    ) -> [FlattenedWillDo] {
+    var result: [FlattenedWillDo] = []
 
-        let sorted = willDos.sorted { lhs, rhs in
+    // ✅ フィルター適用
+    let filtered = willDos.filter { willDo in
+        var include = true
+
+        // 完了しているものを非表示
+        if filterSetting.hideCompleted {
+            include = include && !willDo.isEffectivelyCompleted
+        }
+
+        // カテゴリが一致するものだけを表示
+        if !filterSetting.selectedCategories.isEmpty {
+            include = include && filterSetting.selectedCategories.contains(willDo.category)
+        }
+
+        return include
+    }
+
+        // ✅ ソート処理（そのまま）
+        let sorted = filtered.sorted { lhs, rhs in
             let isAscending = sortSetting.order == .ascending
 
             switch sortSetting.option {
             case .priority:
-                let l = lhs.priority ?? .low
-                let r = rhs.priority ?? .low
+                let l = lhs.priority ?? Priority.low
+                let r = rhs.priority ?? Priority.low
                 return isAscending ? (l < r) : (l > r)
 
             case .weight:
@@ -79,8 +103,8 @@ struct WillDoList: View {
                 return isAscending ? (l < r) : (l > r)
 
             case .goalAt:
-                let l = lhs.goalAt ?? .distantFuture
-                let r = rhs.goalAt ?? .distantFuture
+                let l = lhs.goalAt ?? Date.distantFuture
+                let r = rhs.goalAt ?? Date.distantFuture
                 return isAscending ? (l < r) : (l > r)
 
             case .createAt:
@@ -93,15 +117,22 @@ struct WillDoList: View {
             }
         }
 
+        // ✅ 再帰処理
         for willDo in sorted {
             result.append(FlattenedWillDo(willDo: willDo, level: level))
             if expandedIds.contains(willDo.id) {
-                result += flattened(willDo.childWillDos, level: level + 1, sortSetting: sortSetting)
+                result += flattened(
+                    willDo.childWillDos,
+                    level: level + 1,
+                    sortSetting: sortSetting,
+                    filterSetting: filterSetting
+                )
             }
         }
 
         return result
     }
+
     
 }
 
@@ -126,6 +157,16 @@ extension WillDo {
             case 0.7...1.0: return .green
             default: return .gray
             }
+        }
+    }
+}
+
+extension WillDo {
+    var isEffectivelyCompleted: Bool {
+        if childWillDos.isEmpty {
+            return status == .completed
+        } else {
+            return totalProgress >= 1.0
         }
     }
 }

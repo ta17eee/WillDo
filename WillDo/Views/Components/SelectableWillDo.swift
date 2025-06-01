@@ -20,6 +20,8 @@ struct SelectableWillDo: View {
             Spacer()
                 .frame(width: CGFloat(item.level) * 20)
             VStack(alignment: .leading, spacing: 4) {
+                
+               
                 HStack {
                     
                     
@@ -74,7 +76,16 @@ struct SelectableWillDo: View {
                     .accentColor(item.willDo.effectiveStatusColor)
                     .padding(.leading, CGFloat(item.level) * 20 + 32)
                     .padding(.trailing, 4)
-
+                
+                //カテゴリー表示
+                HStack (spacing: 2) {
+                    Image(systemName: item.willDo.category.iconName)
+                    Text("\(item.willDo.category.displayName)")
+                }
+                .font(.caption)
+                .foregroundColor(.gray)
+                .padding(.leading, CGFloat(item.level) * 20 + 32)
+                
                 // 目標日がある場合に表示
                 if let goalDate = item.willDo.goalAt {
                     Text("目標: \(formatted(date: goalDate))")
