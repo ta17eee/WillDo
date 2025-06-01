@@ -31,12 +31,6 @@ struct ContentView: View {
                     Label("カレンダー", systemImage: "calendar")
                 }
                 .tag(2)
-
-            AnalyzeView()
-                .tabItem {
-                    Label("分析", systemImage: "chart.bar")
-                }
-                .tag(3)
         }
     }
 }
