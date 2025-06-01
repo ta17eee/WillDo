@@ -17,6 +17,7 @@ struct WillDoListView: View {
         hideCompleted: true,
         selectedCategories: Category.allCases
     )
+    @State private var selectedWillDo: WillDo?
 
     var body: some View {
         ZStack {
@@ -70,11 +71,14 @@ struct WillDoListView: View {
                 WillDoList(sortSetting: sortSetting, filterSetting: filterSetting, onTap: dummy)
             }
         }
+        .sheet(item: $selectedWillDo) { willDo in
+            WillDoFormView(parentWillDo: willDo.parent)
+        }
     }
     
     // MARK: 詳細表示をする関数を定義する
     func dummy(_ willDo: WillDo) {
-        
+        selectedWillDo = willDo
     }
 }
 
