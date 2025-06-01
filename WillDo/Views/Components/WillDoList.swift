@@ -1,0 +1,131 @@
+//
+//  WillDoList.swift
+//  WillDo
+//
+//  Created by 高野　泰生 on 2025/06/01.
+//
+
+import SwiftUI
+
+struct WillDoList: View {
+    @State var expandedIds: Set<String> = []
+    var sortSetting: SortSetting = .init(option: .priority, order: .descending)
+    var selectedParent: WillDo?
+    let onTap: (WillDo) -> Void
+    
+    var body: some View {
+        VStack {
+            List {
+                ForEach(flattened(WillDo.sampleWillDos.filter { $0.parentId == nil }, sortSetting: sortSetting)) { item in
+                    SelectableWillDo(
+                        item: item,
+                        isExpanded: expandedIds.contains(item.willDo.id),
+                        selectedParent: selectedParent,
+                        toggleExpansion: toggleExpansion,
+                        onTap: onTap
+                    )
+                    .listRowBackground(
+                        HStack(spacing: 0) {
+                            // 左側 白の領域
+                            Color.white
+                                .frame(width: CGFloat(item.level) * 20)
+
+                            // 右側は階層色
+                            backgroundColor(for: item.level)
+                        }
+                    )
+                }
+            }
+            .scrollContentBackground(.hidden)
+            .background(Color(.systemGray6))
+        }
+    }
+    
+    func backgroundColor(for level: Int) -> Color {
+        let colors: [Color] = [
+            Color(red: 1.0, green: 1.0, blue: 1.0), // white
+            Color(red: 0.90, green: 0.93, blue: 1.0), // very light blue
+            Color(red: 0.92, green: 0.97, blue: 0.95), // mint
+            Color(red: 1.0, green: 0.98, blue: 0.92), // pastel yellow
+            Color(red: 1.0, green: 0.95, blue: 0.95), // pink
+            Color(red: 0.96, green: 0.92, blue: 1.0)  // lavender
+        ]
+        return colors[min(level, colors.count - 1)]
+    }
+    
+    func toggleExpansion(id: String) {
+        if expandedIds.contains(id) {
+            expandedIds.remove(id)
+        } else {
+            expandedIds.insert(id)
+        }
+    }
+
+    func flattened(_ willDos: [WillDo], level: Int = 0, sortSetting: SortSetting) -> [FlattenedWillDo] {
+        var result: [FlattenedWillDo] = []
+
+        let sorted = willDos.sorted { lhs, rhs in
+            let isAscending = sortSetting.order == .ascending
+
+            switch sortSetting.option {
+            case .priority:
+                let l = lhs.priority ?? .low
+                let r = rhs.priority ?? .low
+                return isAscending ? (l < r) : (l > r)
+
+            case .weight:
+                let l = lhs.weight?.rawValue ?? 0
+                let r = rhs.weight?.rawValue ?? 0
+                return isAscending ? (l < r) : (l > r)
+
+            case .goalAt:
+                let l = lhs.goalAt ?? .distantFuture
+                let r = rhs.goalAt ?? .distantFuture
+                return isAscending ? (l < r) : (l > r)
+
+            case .createAt:
+                return isAscending ? (lhs.createAt < rhs.createAt) : (lhs.createAt > rhs.createAt)
+
+            case .status:
+                let l = lhs.status.progress
+                let r = rhs.status.progress
+                return isAscending ? (l < r) : (l > r)
+            }
+        }
+
+        for willDo in sorted {
+            result.append(FlattenedWillDo(willDo: willDo, level: level))
+            if expandedIds.contains(willDo.id) {
+                result += flattened(willDo.childWillDos, level: level + 1, sortSetting: sortSetting)
+            }
+        }
+
+        return result
+    }
+    
+}
+
+extension WillDo {
+    var totalProgress: Double {
+        if childWillDos.isEmpty {
+            return status.progress
+        } else {
+            let progresses = childWillDos.map { $0.totalProgress }
+            return progresses.reduce(0, +) / Double(progresses.count)
+        }
+    }
+
+    var effectiveStatusColor: Color {
+        if childWillDos.isEmpty {
+            return status.color
+        } else {
+            let average = totalProgress
+            switch average {
+            case 0..<0.3: return .red
+            case 0.3..<0.7: return .orange
+            case 0.7...1.0: return .green
+            default: return .gray
+            }
+        }
+    }
+}

@@ -59,4 +59,140 @@ class WillDo {
         self.impression = impression
         self.parentId = parentId
     }
+    
+    static let sampleWillDos: [WillDo] = [
+        WillDo(
+            content: "英単語を毎日10個覚える",
+            childWillDos: [
+                WillDo(
+                    content: "単語帳のページ1を覚える",
+                    childWillDos: [
+                        WillDo(
+                            content: "単語帳のページ1を覚える",
+                            motivation: 70,
+                            category: "勉強",
+                            status: .start,
+                            parentId: "1" // 適切にIDをセットしてください
+                        ),
+                        WillDo(
+                            content: "単語帳のページ2を覚える",
+                            motivation: 65,
+                            category: "勉強",
+                            status: .completed,
+                            parentId: "1"
+                        ),
+                        WillDo(
+                            content: "単語帳の復習をする",
+                            motivation: 60,
+                            category: "勉強",
+                            status: .planned,
+                            parentId: "1"
+                        )
+                    ],
+                    motivation: 70,
+                    category: "勉強",
+                    status: .completed,
+                    parentId: "1" // 適切にIDをセットしてください
+                ),
+                WillDo(
+                    content: "単語帳のページ2を覚える",
+                    childWillDos: [
+                        WillDo(
+                            content: "単語帳のページ1を覚える",
+                            motivation: 70,
+                            category: "勉強",
+                            status: .start,
+                            parentId: "1" // 適切にIDをセットしてください
+                        ),
+                        WillDo(
+                            content: "単語帳のページ2を覚える",
+                            motivation: 65,
+                            category: "勉強",
+                            status: .middle,
+                            parentId: "1"
+                        ),
+                        WillDo(
+                            content: "単語帳の復習をする",
+                            motivation: 60,
+                            category: "勉強",
+                            status: .planned,
+                            parentId: "1"
+                        )
+                    ],
+                    motivation: 65,
+                    category: "勉強",
+                    status: .planned,
+                    parentId: "1"
+                ),
+                WillDo(
+                    content: "単語帳の復習をする",
+                    childWillDos: [
+                        WillDo(
+                            content: "単語帳のページ1を覚える",
+                            motivation: 70,
+                            category: "勉強",
+                            status: .start,
+                            parentId: "1" // 適切にIDをセットしてください
+                        ),
+                        WillDo(
+                            content: "単語帳のページ2を覚える",
+                            motivation: 65,
+                            category: "勉強",
+                            status: .completed,
+                            parentId: "1"
+                        ),
+                        WillDo(
+                            content: "単語帳の復習をする",
+                            motivation: 60,
+                            category: "勉強",
+                            status: .planned,
+                            parentId: "1"
+                        )
+                    ],
+                    motivation: 60,
+                    category: "勉強",
+                    status: .planned,
+                    parentId: "1"
+                )
+            ],
+            motivation: 80,
+            category: "勉強",
+            goalAt: Calendar.current.date(byAdding: .month, value: 1, to: Date()),
+            weight: .medium,
+            priority: .high,
+            status: .start,
+            memoList: [
+                Memo(date: Date(), content: "DUO 3.0 で始めた")
+            ]
+        ),
+        WillDo(
+            content: "ランニングを週3回する",
+            motivation: 60,
+            category: "健康",
+            weight: .low,
+            priority: .medium,
+            status: .planned
+        ),
+        WillDo(
+            content: "アプリ開発のポートフォリオを完成させる",
+            motivation: 95,
+            category: "自己成長",
+            goalAt: Calendar.current.date(byAdding: .month, value: 2, to: Date())!,
+            weight: .veryHigh,
+            priority: .high,
+            status: .middle,
+            memoList: [
+                Memo(date: Date(), content: "画面設計完了。次はFirestore連携")
+            ]
+        ),
+        WillDo(
+            content: "読書感想文を書く",
+            motivation: 40,
+            category: "学校",
+            weight: .high,
+            priority: .low,
+            status: .almostDone,
+            impression: "読み切ったけどまとめるのが大変だった"
+        )
+    ]
 }

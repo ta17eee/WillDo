@@ -11,93 +11,8 @@ import SwiftData
 struct CreateWillDo: View {
     @Environment(\.modelContext) private var context
     @Query private var willDos: [WillDo]
-    @State private var expandedIds: Set<String> = []
     @State private var selectedParentWillDo: WillDo? = nil
     @State private var isCreatingNewWillDo = false
-    
-    // サンプルデータ（WillDoListViewと同じやつ）
-    let sampleWillDos: [WillDo] = [
-        WillDo(
-            content: "英単語を毎日10個覚える",
-            childWillDos: [
-                WillDo(
-                    content: "単語帳のページ1を覚える",
-                    childWillDos: [
-                        WillDo(
-                            content: "単語帳のページ1を覚える",
-                            motivation: 70,
-                            category: "勉強",
-                            status: .planned,
-                            parentId: "1"
-                        ),
-                        WillDo(
-                            content: "単語帳のページ2を覚える",
-                            motivation: 65,
-                            category: "勉強",
-                            status: .planned,
-                            parentId: "1"
-                        ),
-                        WillDo(
-                            content: "単語帳の復習をする",
-                            motivation: 60,
-                            category: "勉強",
-                            status: .planned,
-                            parentId: "1"
-                        )
-                    ],
-                    motivation: 70,
-                    category: "勉強",
-                    status: .planned,
-                    parentId: "1"
-                ),
-                WillDo(
-                    content: "単語帳のページ2を覚える",
-                    motivation: 65,
-                    category: "勉強",
-                    status: .planned,
-                    parentId: "parent1"
-                ),
-                WillDo(
-                    content: "単語帳の復習をする",
-                    motivation: 60,
-                    category: "勉強",
-                    status: .planned,
-                    parentId: "parent1"
-                )
-            ],
-            motivation: 80,
-            category: "勉強"
-        ),
-        WillDo(
-            content: "健康的な生活習慣を身につける",
-            childWillDos: [
-                WillDo(
-                    content: "早寝早起きをする",
-                    motivation: 75,
-                    category: "健康",
-                    status: .start,
-                    parentId: "parent2"
-                ),
-                WillDo(
-                    content: "毎日運動する",
-                    motivation: 70,
-                    category: "健康",
-                    status: .planned,
-                    parentId: "parent2"
-                )
-            ],
-            motivation: 85,
-            category: "健康"
-        ),
-        WillDo(
-            content: "本を読む",
-            motivation: 60,
-            category: "読書",
-            goalAt: Calendar.current.date(byAdding: .month, value: 1, to: Date()),
-            status: .middle,
-            impression: "読み切ったけどまとめるのが大変だった"
-        )
-    ]
     
     var body: some View {
         NavigationView {
@@ -106,17 +21,7 @@ struct CreateWillDo: View {
                     .font(.headline)
                     .padding()
                 
-                List {
-                    ForEach(flattened(sampleWillDos.filter { $0.parentId == nil })) { item in
-                        SelectableWillDoView(
-                            item: item,
-                            isExpanded: expandedIds.contains(item.willDo.id),
-                            isSelected: selectedParentWillDo?.id == item.willDo.id,
-                            toggleExpansion: toggleExpansion,
-                            selectParent: selectParent
-                        )
-                    }
-                }
+                WillDoList(selectedParent: selectedParentWillDo, onTap: selectParent)
                 
                 VStack(spacing: 16) {
                     Button(action: {
@@ -161,30 +66,12 @@ struct CreateWillDo: View {
         }
     }
     
-    func toggleExpansion(id: String) {
-        if expandedIds.contains(id) {
-            expandedIds.remove(id)
+    func selectParent(_ willDo: WillDo) {
+        if selectedParentWillDo == nil {
+            selectedParentWillDo = willDo
         } else {
-            expandedIds.insert(id)
+            selectedParentWillDo = nil
         }
-    }
-    
-    func selectParent(_ willDo: WillDo?) {
-        selectedParentWillDo = willDo
-    }
-    
-    func flattened(_ willDos: [WillDo], level: Int = 0) -> [FlattenedWillDo] {
-        var result: [FlattenedWillDo] = []
-
-        for willDo in willDos {
-            result.append(FlattenedWillDo(willDo: willDo, level: level))
-            if expandedIds.contains(willDo.id) {
-                let children = willDo.childWillDos.sorted { $0.createAt < $1.createAt }
-                result += flattened(children, level: level + 1)
-            }
-        }
-
-        return result
     }
 }
 
